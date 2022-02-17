@@ -3,7 +3,7 @@ vcd-viewer.nvim
 
 A waveform viewer for VCD files.
 
-[![Screenshot-2022-02-17-100855.png](https://i.postimg.cc/x81kk2KT/Screenshot-2022-02-17-100855.png)](https://postimg.cc/Vr2sT2G3)
+[![Screenshot-2022-02-17-114832.png](https://i.postimg.cc/SN4sx50z/Screenshot-2022-02-17-114832.png)](https://postimg.cc/PN6h6S5t)
 
 
 Installation
