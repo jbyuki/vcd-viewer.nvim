@@ -9,10 +9,10 @@ for _, id_code in ipairs(ordered) do
   local entry = parsed[id_code]
   local prev
   @draw_waveform_using_box_drawing_characters
-  @append_to_lines_with_name
   @save_name_for_highlight
 end
 
+@append_names_to_lines
 @add_margin_to_lines
 
 vim.api.nvim_buf_set_lines(buf, 0, -1, true, lines)
@@ -25,7 +25,9 @@ for i=2,#entry.data do
   local val = entry.data[i]
   @draw_single_timeframe
 end
--- @draw_single_timeframe_end
+@draw_single_timeframe_end
+table.insert(lines, table.concat(upper, ""))
+table.insert(lines, table.concat(lower, ""))
 
 @draw_single_timeframe_start+=
 if entry.data[1] == "1" then
@@ -72,16 +74,33 @@ elseif entry.data[i-1] == "1" and entry.data[i] == "1" then
   table.insert(lower, " ")
 end
 
-@append_to_lines_with_name+=
-local len = vim.api.nvim_strwidth(entry.ref)
-@create_whitespace_replacement
-table.insert(lines, white .. " " .. table.concat(upper, ""))
-table.insert(lines, entry.ref .. " " .. table.concat(lower, ""))
+@declare_functions+=
+local create_whitespace
 
-@create_whitespace_replacement+=
-local white = ""
-for i=1,len do
-  white = white .. " "
+@functions+=
+function rep(n, c)
+  local text = ""
+  for i=1,n do
+    text = text .. (c or " ")
+  end
+  return text
+end
+
+@append_names_to_lines+=
+@compute_max_width_names
+for i, id_code in ipairs(ordered) do
+  local entry = parsed[id_code]
+  local upper_blank = rep(max_width_name+2)
+  local lower_blank = rep(vim.api.nvim_strwidth(entry.ref) - max_width_name + 2)
+  lines[2*(i-1)+1] = upper_blank .. lines[2*(i-1)+1]
+  lines[2*(i-1)+2] = entry.ref .. lower_blank .. lines[2*(i-1)+2]
+end
+
+@compute_max_width_names+=
+local max_width_name = 0
+for i, id_code in ipairs(ordered) do
+  local entry = parsed[id_code]
+  max_width_name = math.max(vim.api.nvim_strwidth(entry.ref), max_width_name)
 end
 
 @foreach_waveform_draw_it-=
@@ -94,6 +113,9 @@ table.insert(name_pos, {
 
 @create_highlight_namespace+=
 local ns_id = vim.api.nvim_create_namespace("")
+
+
+@set_highlight_for_names+=
 for _, pos in ipairs(name_pos) do
   local row, scol, ecol = unpack(pos)
   vim.api.nvim_buf_add_highlight(buf, ns_id, "String", row-1, scol,  ecol)
@@ -146,3 +168,22 @@ end
 for i=1,#lines do
   lines[i] = prefix .. lines[i]
 end
+
+@set_highlight_for_timesteps+=
+local hl_group = "Whitespace"
+for i=margin+1,#lines do
+  local len_line = vim.str_utfindex(lines[i])
+  local j = max_width_name + 2 + 1
+  while j < len_line do
+    @compute_col_for_cell
+    local c = lines[i]:sub(scol+1,ecol)
+    if c ~= " " then
+      vim.api.nvim_buf_add_highlight(buf, ns_id, hl_group, i-1, scol, ecol)
+    end
+    j = j + 2
+  end
+end
+
+@compute_col_for_cell+=
+local scol = vim.str_byteindex(lines[i], j)
+local ecol = vim.str_byteindex(lines[i], j+1)

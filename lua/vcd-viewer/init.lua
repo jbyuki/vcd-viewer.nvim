@@ -61,6 +61,14 @@ function M.parse(lines)
   return parsed, ordered
 end
 
+function rep(n, c)
+  local text = ""
+  for i=1,n do
+    text = text .. (c or " ")
+  end
+  return text
+end
+
 function M.view()
   local lines = vim.api.nvim_buf_get_lines(0, 0, -1, false)
 
@@ -115,21 +123,35 @@ function M.view()
       end
 
     end
-    -- @draw_single_timeframe_end
-
-    local len = vim.api.nvim_strwidth(entry.ref)
-    local white = ""
-    for i=1,len do
-      white = white .. " "
+    if entry.data[#entry.data] == "1" then
+      table.insert(upper, "─")
+      table.insert(lower, " ")
+    elseif entry.data[#entry.data] == "0" then
+      table.insert(upper, " ")
+      table.insert(lower, "─")
     end
 
-    table.insert(lines, white .. " " .. table.concat(upper, ""))
-    table.insert(lines, entry.ref .. " " .. table.concat(lower, ""))
+    table.insert(lines, table.concat(upper, ""))
+    table.insert(lines, table.concat(lower, ""))
 
     table.insert(name_pos, {
       #lines+margin, margin, #entry.ref+margin
     })
 
+  end
+
+  local max_width_name = 0
+  for i, id_code in ipairs(ordered) do
+    local entry = parsed[id_code]
+    max_width_name = math.max(vim.api.nvim_strwidth(entry.ref), max_width_name)
+  end
+
+  for i, id_code in ipairs(ordered) do
+    local entry = parsed[id_code]
+    local upper_blank = rep(max_width_name+2)
+    local lower_blank = rep(vim.api.nvim_strwidth(entry.ref) - max_width_name + 2)
+    lines[2*(i-1)+1] = upper_blank .. lines[2*(i-1)+1]
+    lines[2*(i-1)+2] = entry.ref .. lower_blank .. lines[2*(i-1)+2]
   end
 
   local white = ""
@@ -157,12 +179,30 @@ function M.view()
     lines[i] = prefix .. lines[i]
   end
 
+
   vim.api.nvim_buf_set_lines(buf, 0, -1, true, lines)
 
   local ns_id = vim.api.nvim_create_namespace("")
+
+
   for _, pos in ipairs(name_pos) do
     local row, scol, ecol = unpack(pos)
     vim.api.nvim_buf_add_highlight(buf, ns_id, "String", row-1, scol,  ecol)
+  end
+
+  local hl_group = "Whitespace"
+  for i=margin+1,#lines do
+    local len_line = vim.str_utfindex(lines[i])
+    local j = max_width_name + 2 + 1
+    while j < len_line do
+      local scol = vim.str_byteindex(lines[i], j)
+      local ecol = vim.str_byteindex(lines[i], j+1)
+      local c = lines[i]:sub(scol+1,ecol)
+      if c ~= " " then
+        vim.api.nvim_buf_add_highlight(buf, ns_id, hl_group, i-1, scol, ecol)
+      end
+      j = j + 2
+    end
   end
 
   local editor_width = vim.o.columns
@@ -181,7 +221,7 @@ function M.view()
     style = "minimal",
   })
 
-  vim.api.nvim_command [[setlocal cursorcolumn]]
+  -- @set_cursor_as_column
 end
 
 return M

@@ -8,8 +8,9 @@ function M.view()
   @foreach_waveform_draw_it
   @create_highlight_namespace
   @set_highlight_for_names
+  @set_highlight_for_timesteps
   @create_float_window
-  @set_cursor_as_column
+  -- @set_cursor_as_column
 end
 
 @get_lines_in_current_buffer+=
