@@ -171,6 +171,8 @@ end
 
 @set_highlight_for_timesteps+=
 local hl_group = "Whitespace"
+local hl_group_high = "Error"
+local hl_group_low = "Question"
 for i=margin+1,#lines do
   local len_line = vim.str_utfindex(lines[i])
   local j = max_width_name + 2 + 1
@@ -178,12 +180,23 @@ for i=margin+1,#lines do
     @compute_col_for_cell
     local c = lines[i]:sub(scol+1,ecol)
     if c ~= " " then
-      vim.api.nvim_buf_add_highlight(buf, ns_id, hl_group, i-1, scol, ecol)
+      if (j-max_width_name)%2 == 1 then
+        vim.api.nvim_buf_add_highlight(buf, ns_id, hl_group, i-1, scol, ecol)
+      else
+        @highlight_waveform_based_on_value
+      end
     end
-    j = j + 2
+    j = j + 1
   end
 end
 
 @compute_col_for_cell+=
 local scol = vim.str_byteindex(lines[i], j)
 local ecol = vim.str_byteindex(lines[i], j+1)
+
+@highlight_waveform_based_on_value+=
+if (i-margin)%2 == 0 then
+  vim.api.nvim_buf_add_highlight(buf, ns_id, hl_group_low, i-1, scol, ecol)
+else
+  vim.api.nvim_buf_add_highlight(buf, ns_id, hl_group_high, i-1, scol, ecol)
+end
