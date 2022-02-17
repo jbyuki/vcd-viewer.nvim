@@ -108,7 +108,7 @@ local name_pos = {}
 
 @save_name_for_highlight+=
 table.insert(name_pos, {
-  #lines+margin, margin, #entry.ref+margin
+  #lines+margin, 2*margin, #entry.ref+2*margin
 })
 
 @create_highlight_namespace+=
@@ -128,7 +128,7 @@ local margin = 1
 local editor_width = vim.o.columns
 local editor_height = vim.o.lines
 
-local w = math.min(math.floor(editor_width*0.8), max_width + margin*2)
+local w = math.min(math.floor(editor_width*0.8), max_width + margin*4)
 local h = math.min(math.floor(editor_height*0.8), #lines + margin)
 
 local win = vim.api.nvim_open_win(buf, true, {
@@ -148,22 +148,16 @@ for i=1,#lines do
 end
 
 @add_margin_to_lines+=
-local white = ""
 
 @compute_max_width
 
-for i=1,max_width do
-  white = white .. " "
-end
+local white = rep(max_width)
 
 for i=1,margin do
   table.insert(lines, 1, white)
 end
 
-local prefix = ""
-for i=1,margin do
-  prefix = prefix .. " "
-end
+local prefix = rep(2*margin)
 
 for i=1,#lines do
   lines[i] = prefix .. lines[i]
@@ -175,12 +169,12 @@ local hl_group_high = "Error"
 local hl_group_low = "Question"
 for i=margin+1,#lines do
   local len_line = vim.str_utfindex(lines[i])
-  local j = max_width_name + 2 + 1
+  local j = max_width_name + 2 + 2*margin
   while j < len_line do
     @compute_col_for_cell
     local c = lines[i]:sub(scol+1,ecol)
     if c ~= " " then
-      if (j-max_width_name)%2 == 1 then
+      if (j-max_width_name-2*margin)%2 == 0 then
         vim.api.nvim_buf_add_highlight(buf, ns_id, hl_group, i-1, scol, ecol)
       else
         @highlight_waveform_based_on_value
