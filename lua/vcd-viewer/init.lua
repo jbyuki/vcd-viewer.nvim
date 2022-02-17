@@ -1,7 +1,7 @@
 -- Generated using ntangle.nvim
 local margin = 1
 
-local create_whitespace
+local rep
 
 local M = {}
 function M.parse(lines)

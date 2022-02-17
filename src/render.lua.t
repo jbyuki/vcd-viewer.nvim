@@ -75,7 +75,7 @@ elseif entry.data[i-1] == "1" and entry.data[i] == "1" then
 end
 
 @declare_functions+=
-local create_whitespace
+local rep
 
 @functions+=
 function rep(n, c)
