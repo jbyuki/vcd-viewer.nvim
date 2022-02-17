@@ -151,7 +151,7 @@ function M.view()
   for i, id_code in ipairs(ordered) do
     local entry = parsed[id_code]
     local upper_blank = rep(max_width_name+2)
-    local lower_blank = rep(vim.api.nvim_strwidth(entry.ref) - max_width_name + 2)
+    local lower_blank = rep(max_width_name - vim.api.nvim_strwidth(entry.ref) + 2)
     lines[2*(i-1)+1] = upper_blank .. lines[2*(i-1)+1]
     lines[2*(i-1)+2] = entry.ref .. lower_blank .. lines[2*(i-1)+2]
   end
