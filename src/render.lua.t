@@ -89,7 +89,7 @@ local name_pos = {}
 
 @save_name_for_highlight+=
 table.insert(name_pos, {
-  #lines+margin, margin*2, #entry.ref+margin*2
+  #lines+margin, margin, #entry.ref+margin
 })
 
 @create_highlight_namespace+=
@@ -105,8 +105,6 @@ local margin = 1
 @create_float_window+=
 local editor_width = vim.o.columns
 local editor_height = vim.o.lines
-
-@compute_max_width
 
 local w = math.min(math.floor(editor_width*0.8), max_width + margin*2)
 local h = math.min(math.floor(editor_height*0.8), #lines + margin)
@@ -128,12 +126,20 @@ for i=1,#lines do
 end
 
 @add_margin_to_lines+=
+local white = ""
+
+@compute_max_width
+
+for i=1,max_width do
+  white = white .. " "
+end
+
 for i=1,margin do
-  table.insert(lines, 1, "")
+  table.insert(lines, 1, white)
 end
 
 local prefix = ""
-for i=1,2*margin do
+for i=1,margin do
   prefix = prefix .. " "
 end
 

@@ -66,6 +66,7 @@ function M.view()
 
   local parsed, ordered = M.parse(lines)
 
+
   local buf = vim.api.nvim_create_buf(false, true)
 
 
@@ -126,17 +127,29 @@ function M.view()
     table.insert(lines, entry.ref .. " " .. table.concat(lower, ""))
 
     table.insert(name_pos, {
-      #lines+margin, margin*2, #entry.ref+margin*2
+      #lines+margin, margin, #entry.ref+margin
     })
 
   end
 
+  local white = ""
+
+  local max_width = 0
+  for i=1,#lines do
+    max_width = math.max(vim.api.nvim_strwidth(lines[i]), max_width)
+  end
+
+
+  for i=1,max_width do
+    white = white .. " "
+  end
+
   for i=1,margin do
-    table.insert(lines, 1, "")
+    table.insert(lines, 1, white)
   end
 
   local prefix = ""
-  for i=1,2*margin do
+  for i=1,margin do
     prefix = prefix .. " "
   end
 
@@ -155,12 +168,6 @@ function M.view()
   local editor_width = vim.o.columns
   local editor_height = vim.o.lines
 
-  local max_width = 0
-  for i=1,#lines do
-    max_width = math.max(vim.api.nvim_strwidth(lines[i]), max_width)
-  end
-
-
   local w = math.min(math.floor(editor_width*0.8), max_width + margin*2)
   local h = math.min(math.floor(editor_height*0.8), #lines + margin)
 
@@ -174,6 +181,7 @@ function M.view()
     style = "minimal",
   })
 
+  vim.api.nvim_command [[setlocal cursorcolumn]]
 end
 
 return M
