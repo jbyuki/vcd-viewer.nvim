@@ -74,24 +74,12 @@ elseif entry.data[i-1] == "1" and entry.data[i] == "1" then
   table.insert(lower, " ")
 end
 
-@declare_functions+=
-local rep
-
-@functions+=
-function rep(n, c)
-  local text = ""
-  for i=1,n do
-    text = text .. (c or " ")
-  end
-  return text
-end
-
 @append_names_to_lines+=
 @compute_max_width_names
 for i, id_code in ipairs(ordered) do
   local entry = parsed[id_code]
-  local upper_blank = rep(max_width_name+2)
-  local lower_blank = rep(max_width_name - vim.api.nvim_strwidth(entry.ref) + 2)
+  local upper_blank = (" "):rep(max_width_name+2)
+  local lower_blank = (" "):rep(max_width_name - vim.api.nvim_strwidth(entry.ref) + 2)
   lines[2*(i-1)+1] = upper_blank .. lines[2*(i-1)+1]
   lines[2*(i-1)+2] = entry.ref .. lower_blank .. lines[2*(i-1)+2]
 end
@@ -151,13 +139,13 @@ end
 
 @compute_max_width
 
-local white = rep(max_width)
+local white = (" "):rep(max_width)
 
 for i=1,margin do
   table.insert(lines, 1, white)
 end
 
-local prefix = rep(2*margin)
+local prefix = (" "):rep(2*margin)
 
 for i=1,#lines do
   lines[i] = prefix .. lines[i]

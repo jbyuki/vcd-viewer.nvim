@@ -1,8 +1,6 @@
 -- Generated using ntangle.nvim
 local margin = 1
 
-local rep
-
 local M = {}
 function M.parse(lines)
   local parsed = {}
@@ -61,14 +59,6 @@ function M.parse(lines)
 
 
   return parsed, ordered
-end
-
-function rep(n, c)
-  local text = ""
-  for i=1,n do
-    text = text .. (c or " ")
-  end
-  return text
 end
 
 function M.view()
@@ -150,8 +140,8 @@ function M.view()
 
   for i, id_code in ipairs(ordered) do
     local entry = parsed[id_code]
-    local upper_blank = rep(max_width_name+2)
-    local lower_blank = rep(max_width_name - vim.api.nvim_strwidth(entry.ref) + 2)
+    local upper_blank = (" "):rep(max_width_name+2)
+    local lower_blank = (" "):rep(max_width_name - vim.api.nvim_strwidth(entry.ref) + 2)
     lines[2*(i-1)+1] = upper_blank .. lines[2*(i-1)+1]
     lines[2*(i-1)+2] = entry.ref .. lower_blank .. lines[2*(i-1)+2]
   end
@@ -163,13 +153,13 @@ function M.view()
   end
 
 
-  local white = rep(max_width)
+  local white = (" "):rep(max_width)
 
   for i=1,margin do
     table.insert(lines, 1, white)
   end
 
-  local prefix = rep(2*margin)
+  local prefix = (" "):rep(2*margin)
 
   for i=1,#lines do
     lines[i] = prefix .. lines[i]
